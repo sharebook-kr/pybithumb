@@ -8,11 +8,7 @@ import requests
 
 class client:
     def __init__(self, conkey, seckey):
-        self.API_CONKEY = conkey.encode('utf-8')
-        self.API_SECRET = seckey.encode('utf-8')
-
-        self.session = requests.session()
-        self.session.headers.update({'Api-Key': self.API_CONKEY})
+        self.http = BithumbHttp(conkey, seckey)
 
     def get_balance(self, **kwargs):
         """
@@ -33,7 +29,7 @@ class client:
             }
         }        
         """
-        return self._post('/info/balance', **kwargs)
+        return self.http.post('/info/balance', **kwargs)
 
     def get_transactions(self, **kwargs):
         """
@@ -61,30 +57,69 @@ class client:
             del (kwargs['coin'])
 
         uri = "/public/recent_transactions/" + coin
-        return self._get(uri, **kwargs)
+        return self.http.get(uri, **kwargs)
 
-    def _get(self, uri, **kwargs):
-        URL = "https://api.bithumb.com" + uri
-        return self.session.get(url=URL, params=kwargs).json()
 
-    def _post(self, uri, **kwargs):
-        kwargs.update({'endpoint': uri})
-        target = [uri, urllib.parse.urlencode(kwargs), str(int(time.time() * 1000))]
+class HttpMethod:
+    def __init__(self):
+        self.session = requests.session()
 
-        # generate signature
-        query_string = chr(0).join(target).encode('utf-8')
-        h = hmac.new(self.API_SECRET, query_string, hashlib.sha512)
-        api_sign = base64.b64encode(h.hexdigest().encode('utf-8'))
+    @property
+    def base_url(self):
+        return ""
 
-        # send
-        URL = "https://api.bithumb.com" + uri
-        self.session.headers['Api-Sign'] = api_sign
-        self.session.headers['Api-Nonce'] = target[2]
-        return self.session.post(url=URL, data=kwargs).json()
+    def _handle_response(self, response):
+        """        
+        requests에 대한 error handling
+        """
+        # statue code가 000이 아닐경우, requests.exceptions.HTTPError 발생
+        # 이부분은 에러처리를 어떻게 할 것인지 논의를 더 해 봐야 함
+        # response.raise_for_status()
+        return response.json()
+
+    def update_headers(self, headers):
+        self.session.headers.update(headers)
+
+    def post(self, path, timeout=1, **kwargs):
+        uri = self.base_url + path
+        response = self.session.post(url=uri, data=kwargs, timeout=timeout)
+        return self._handle_response(response)
+
+    def get(self, path, timeout=1, **kwargs):
+        uri = self.base_url + path
+        response = self.session.get(url=uri, data=kwargs, timeout=timeout)
+        return self._handle_response(response)
+
+
+class BithumbHttp(HttpMethod):
+    def __init__(self, conkey, seckey):
+        self.API_CONKEY = conkey.encode('utf-8')
+        self.API_SECRET = seckey.encode('utf-8')
+        super(BithumbHttp, self).__init__()
+
+    @property
+    def base_url(self):
+        return "https://api.bithumb.com"
+
+    def _signature(self, path, nonce, **kwargs):
+        query_string = path + chr(0) + urllib.parse.urlencode(kwargs) + chr(0) + nonce
+        h = hmac.new(self.API_SECRET, query_string.encode('utf-8'), hashlib.sha512)
+        return base64.b64encode(h.hexdigest().encode('utf-8'))
+
+    def post(self, path, **kwargs):
+        kwargs['endpoint'] = path
+        nonce = str(int(time.time() * 1000))
+
+        self.update_headers({
+            'Api-Key': self.API_CONKEY,
+            'Api-Sign': self._signature(path, nonce, **kwargs),
+            'Api-Nonce': nonce
+        })
+        return super().post(path, **kwargs)
 
 
 if __name__ == "__main__":
-    bithumb = client('CONKEY', 'SECKEY')
+    bithumb = client('', '')
 
     # 잔고 조회
     response = bithumb.get_balance(currency="ETH")
@@ -94,9 +129,9 @@ if __name__ == "__main__":
     response = bithumb.get_transactions(count=4)
     for p in response['data']:
         print ("최근 체결가:", p['price'])
-
-    response = bithumb.get_transactions()
-    print("최근 체결가", response['data'][0]['price'])
-
-    response = bithumb.get_transactions(coin="ETH")
-    print("최근 체결가", response['data'][0]['price'])
+    #
+    # response = bithumb.get_transactions()
+    # print("최근 체결가:", response['data'][0]['price'])
+    #
+    # response = bithumb.get_transactions(coin="ETH")
+    # print("최근 체결가:", response['data'][0]['price'])
