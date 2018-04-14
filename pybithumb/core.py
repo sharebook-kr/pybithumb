@@ -5,6 +5,8 @@ import time
 import urllib
 import requests
 
+CURRENCY = ["BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "XMR", "ZEC",
+            "QTUM", "BTG", "EOS", "ICX", "VEN", "TRX", "ELF", "MITH", "ALL"]
 
 class RestApi:
     def __init__(self, conkey, seckey):
@@ -29,6 +31,13 @@ class RestApi:
         }        
         """
         return self.http.post('/info/balance', **kwargs)
+
+    def ticker(self, currency="BTC"):
+        if currency not in CURRENCY:
+            currency = "BTC"
+
+        uri = "/public/ticker/" + currency
+        return self.http.get(uri)
 
     def recent_transactions(self, **kwargs):
         """

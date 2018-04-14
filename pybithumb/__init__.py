@@ -6,6 +6,15 @@ class Bithumb:
     def __init__(self, conkey, seckey):
         self.api = RestApi(conkey, seckey)
 
+    def get_ticker(self, currency="BTC"):
+        """
+        bithumb 거래소 마지막 거래 정보
+        :param currency:
+        :return: dict
+        """
+        r = self.api.ticker(currency)
+        return r.get('data')
+
     def get_transactions(self, count=10):
         r = self.api.recent_transactions(count=count)
         return pd.DataFrame(r['data'])
@@ -34,8 +43,8 @@ class Bithumb:
 
 if __name__ == "__main__":
     bithumb = Bithumb('CONKEY', 'SECKEY')
-    r = bithumb.get_transactions(20)
-    print (r)
+    print(bithumb.get_transactions(20))
+    print(bithumb.get_ticker("BTC"))
 
     # r = c.get_balance("DASH")
     # print (r)
