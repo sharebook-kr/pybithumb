@@ -1,11 +1,8 @@
-from bithumb.core import *
+from pybithumb.core import *
 import pandas as pd
 
 
-# Input Data 무결성 검사
-# Ouput Data reformatting을 해야 함
-
-class client :
+class Bithumb:
     def __init__(self, conkey, seckey):
         self.api = RestApi(conkey, seckey)
 
@@ -36,9 +33,8 @@ class client :
 
 
 if __name__ == "__main__":
-    c = client('CONKEY', 'SECKEY')
-
-    r = c.get_transactions()
+    bithumb = Bithumb('CONKEY', 'SECKEY')
+    r = bithumb.get_transactions(20)
     print (r)
 
     # r = c.get_balance("DASH")

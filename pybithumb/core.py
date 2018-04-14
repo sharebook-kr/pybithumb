@@ -12,7 +12,7 @@ class RestApi:
 
     def balance(self, **kwargs):
         """
-        bithumb 거래소 회원 지갑 정보
+        pybithumb 거래소 회원 지갑 정보
         :param currency: 코인 타입        
         :return: json type
         {
