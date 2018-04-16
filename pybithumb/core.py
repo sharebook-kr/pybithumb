@@ -13,51 +13,15 @@ class RestApi:
         self.http = BithumbHttp(conkey, seckey)
 
     def balance(self, **kwargs):
-        """
-        pybithumb 거래소 회원 지갑 정보
-        :param currency: 코인 타입        
-        :return: json type
-        {
-            "status"    : "0000",
-            "data"      : {
-                "total_btc"     : "665.40127447",
-                "total_krw"     : "305507280",
-                "in_use_btc"    : "127.43629364",
-                "in_use_krw"    : "8839047.0000000000",
-                "available_btc" : "537.96498083",
-                "available_krw" : "294932685.000000000000",
-                "xcoin_last"    : "505000"
-            }
-        }        
-        """
         return self.http.post('/info/balance', **kwargs)
 
     def ticker(self, currency="BTC"):
         if currency not in CURRENCY:
             currency = "BTC"
-
         uri = "/public/ticker/" + currency
         return self.http.get(uri)
 
     def recent_transactions(self, **kwargs):
-        """
-        거래소 거래 체결 완료 내역
-        :param coin: Coin 이름
-        :param count: 조회할 데이터의 개수
-        :return: json type
-        {
-            "status"    : 결과 상태 코드
-            "data"      : [
-                {
-                    "transaction_date"  : 거래 채결 시간
-                    "type"              : 판/구매 (ask, bid)
-                    "units_traded"      : 거래 Currency 수량
-                    "price"             : 1Currency 거래 금액
-                    "total"             : 총 거래금액
-                }...               
-            ]
-        }
-        """
         coin = kwargs.get('coin', None)
         if coin is None:
             coin = "BTC"
@@ -69,34 +33,6 @@ class RestApi:
         return self.http.get(uri, **kwargs)
 
     def place(self, **kwargs):
-        """    
-        매수/매도 주문을 발행한다
-        :param type: 구매/판매 구분자로 "bid", "ask" 중 하나의 값을 갖는다
-        :param currency: Bithumb의 코인 타입 
-        :param unit: 수량
-        :param price: 단가         
-        :return: json type
-        {
-            "status"    : "0000",
-            "order_id"  : "1428646963419",
-            "data": [
-                {
-                    "cont_id"   : "15313",
-                    "units"     : "0.61460000",
-                    "price"     : "284000",
-                    "total"     : 174546,
-                    "fee"       : "0.00061460"
-                },
-                {
-                    "cont_id"   : "15314",
-                    "units"     : "0.18540000",
-                    "price"     : "289000",
-                    "total"     : 53581,
-                    "fee"       : "0.00018540"
-                }
-            ]
-        }
-        """
         return self.http.post('/trade/place', **kwargs)
 
     def orders(self, **kwargs):
@@ -104,6 +40,14 @@ class RestApi:
 
     def cancel(self, **kwargs):
         return self.http.post('/trade/cancel', **kwargs)
+
+    def orderbook(self, **kwargs):
+        currency = kwargs.get('currency', None)
+        if currency is None:
+            currency = "BTC"
+        else:
+            del (kwargs['currency'])
+        return self.http.post('/public/orderbook/' + currency, **kwargs)
 
 
 class HttpMethod:

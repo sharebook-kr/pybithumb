@@ -6,6 +6,8 @@ class Bithumb:
     def __init__(self, conkey, seckey):
         self.api = RestApi(conkey, seckey)
 
+        pd.set_option('display.width', 1000)
+
     def get_ticker(self, currency="BTC"):
         """
         bithumb 거래소 마지막 거래 정보
@@ -13,7 +15,7 @@ class Bithumb:
         :return: dict
         """
         r = self.api.ticker(currency)
-        return r.get('data')
+        return pd.DataFrame(r['data'], index=[0])
 
     def get_transactions(self, count=10):
         r = self.api.recent_transactions(count=count)
@@ -25,11 +27,15 @@ class Bithumb:
         # 'in_use_dash': '0.00000000', 'available_dash': '0.00000000', 'misu_dash': 0, 'xcoin_last': '381000'}
         # df = pd.DataFrame()
         r = self.api.balance(currency=currency)
-        # 어떻게 보여줄 것인지..
         return r['data']
 
-    def put_order(self, type, currency, price, unit):
-        r = self.api.place(type=type, price=price, units=unit, order_currency=currency)
+    def get_orderbook(self, currency="EOS"):
+        r = self.api.orderbook(currency=currency)
+        return pd.DataFrame(r['data'])
+
+    def put_order(self, type, currency, market, price, unit):
+        r = self.api.place(type=type, price=price, units=unit, order_currency=currency, Payment_currency=market)
+        print(r)
         return (type, currency, r['order_id'])
 
     def get_order(self, order_desc):
@@ -43,8 +49,9 @@ class Bithumb:
 
 if __name__ == "__main__":
     bithumb = Bithumb('CONKEY', 'SECKEY')
-    print(bithumb.get_transactions(20))
+    #print(bithumb.get_transactions(20))
     print(bithumb.get_ticker("BTC"))
+
 
     # r = c.get_balance("DASH")
     # print (r)
