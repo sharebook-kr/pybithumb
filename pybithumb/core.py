@@ -5,32 +5,30 @@ import time
 import urllib
 import requests
 
-CURRENCY = ["BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "XMR", "ZEC",
-            "QTUM", "BTG", "EOS", "ICX", "VEN", "TRX", "ELF", "MITH", "ALL"]
 
-class RestApi:
+class publicApi:
+    @staticmethod
+    def ticker(currency):
+        uri = "/public/ticker/" + currency
+        return BithumbHttp().get(uri)
+
+    @staticmethod
+    def recent_transactions(currency):
+        uri = "/public/recent_transactions/" + currency
+        return BithumbHttp().get(uri)
+
+    @staticmethod
+    def orderbook(currency):
+        uri = "/public/orderbook/" + currency
+        return BithumbHttp().get(uri)
+
+
+class privateApi:
     def __init__(self, conkey, seckey):
         self.http = BithumbHttp(conkey, seckey)
 
     def balance(self, **kwargs):
         return self.http.post('/info/balance', **kwargs)
-
-    def ticker(self, currency="BTC"):
-        if currency not in CURRENCY:
-            currency = "BTC"
-        uri = "/public/ticker/" + currency
-        return self.http.get(uri)
-
-    def recent_transactions(self, **kwargs):
-        coin = kwargs.get('coin', None)
-        if coin is None:
-            coin = "BTC"
-        else:
-            del (kwargs['coin'])
-
-        uri = "/public/recent_transactions/" + coin
-        print(kwargs)
-        return self.http.get(uri, **kwargs)
 
     def place(self, **kwargs):
         return self.http.post('/trade/place', **kwargs)
@@ -41,13 +39,11 @@ class RestApi:
     def cancel(self, **kwargs):
         return self.http.post('/trade/cancel', **kwargs)
 
-    def orderbook(self, **kwargs):
-        currency = kwargs.get('currency', None)
-        if currency is None:
-            currency = "BTC"
-        else:
-            del (kwargs['currency'])
-        return self.http.post('/public/orderbook/' + currency, **kwargs)
+    def market_buy(self, **kwargs):
+        return self.http.post('/trade/market_buy', **kwargs)
+
+    def market_sell(self, **kwargs):
+        return self.http.post('/trade/market_sell', **kwargs)
 
 
 class HttpMethod:
@@ -59,30 +55,27 @@ class HttpMethod:
         return ""
 
     def _handle_response(self, response):
-        """        
-        requests에 대한 error handling
-        """
-        # statue code가 000이 아닐경우, requests.exceptions.HTTPError 발생
-        # 이부분은 에러처리를 어떻게 할 것인지 논의를 더 해 봐야 함
-        # response.raise_for_status()
-        return response.json()
+        contents = response.json()
+        if contents['status'] != '0000':
+            return [contents['message']]
+        return contents['data']
 
     def update_headers(self, headers):
         self.session.headers.update(headers)
 
-    def post(self, path, timeout=1, **kwargs):
+    def post(self, path, timeout=3, **kwargs):
         uri = self.base_url + path
         response = self.session.post(url=uri, data=kwargs, timeout=timeout)
         return self._handle_response(response)
 
-    def get(self, path, timeout=1, **kwargs):
+    def get(self, path, timeout=3, **kwargs):
         uri = self.base_url + path
         response = self.session.get(url=uri, params=kwargs, timeout=timeout)
         return self._handle_response(response)
 
 
 class BithumbHttp(HttpMethod):
-    def __init__(self, conkey, seckey):
+    def __init__(self, conkey="", seckey=""):
         self.API_CONKEY = conkey.encode('utf-8')
         self.API_SECRET = seckey.encode('utf-8')
         super(BithumbHttp, self).__init__()
