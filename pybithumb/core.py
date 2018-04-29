@@ -58,6 +58,13 @@ class HttpMethod:
         contents = response.json()
         if contents['status'] != '0000':
             return [contents['message']]
+        # [예외] buy/sell API의 결괏값은 'order_id'로 전송
+        if contents.get('order_id') :
+            return contents['order_id']
+        # [예외] calcel API의 결괏값은 'status'만 전송
+        if not contents.get('data') : 
+            return contents['status']
+        # 빗썸 API 대부분의 정보는 'data'로 전송 
         return contents['data']
 
     def update_headers(self, headers):
