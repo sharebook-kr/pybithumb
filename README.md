@@ -1,4 +1,4 @@
-# korbit-api
+# bithumb-api
 Python Wrapper for Bithumb API
 
 ## Installation
@@ -8,7 +8,7 @@ pip install pybithumb
 
 ## Import
 ```python
-import pybithumb
+from pybithumb import Bithumb
 ```
 
 ## Public API

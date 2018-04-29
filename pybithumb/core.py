@@ -55,17 +55,7 @@ class HttpMethod:
         return ""
 
     def _handle_response(self, response):
-        contents = response.json()
-        if contents['status'] != '0000':
-            return [contents['message']]
-        # [예외] buy/sell API의 결괏값은 'order_id'로 전송
-        if contents.get('order_id') :
-            return contents['order_id']
-        # [예외] calcel API의 결괏값은 'status'만 전송
-        if not contents.get('data') : 
-            return contents['status']
-        # 빗썸 API 대부분의 정보는 'data'로 전송 
-        return contents['data']
+        return response.json()
 
     def update_headers(self, headers):
         self.session.headers.update(headers)
@@ -106,3 +96,16 @@ class BithumbHttp(HttpMethod):
             'Api-Nonce': nonce
         })
         return super().post(path, **kwargs)
+
+    def _handle_response(self, response):
+        response = super()._handle_response(response)
+        if response['status'] != '0000':
+            return [response['message']]
+        # [예외] buy/sell API의 결괏값은 'order_id'로 전송
+        if response.get('order_id'):
+            return response['order_id']
+        # [예외] calcel API의 결괏값은 'status'만 전송
+        if not response.get('data'):
+            return response['status']
+        # 빗썸 API 대부분의 정보는 'data'로 전송
+        return response['data']

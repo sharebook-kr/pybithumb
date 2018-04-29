@@ -31,7 +31,7 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : price
         """
-        return publicApi.recent_transactions(currency)[0]['price']
+        return float(publicApi.recent_transactions(currency)[0]['price'])
 
     @staticmethod
     def get_orderbook(currency):
@@ -61,7 +61,7 @@ class Bithumb:
         :param unit    : 주문 수량
         :return        : (주문Type, currency, 주문ID)
         """
-        nit = "{0:.4f}".format(unit)
+        unit = "{0:.4f}".format(unit)
         order_id = self.api.place(type="bids", price=price, units=unit, order_currency=currency)
         return "bids", currency, order_id
 
@@ -144,6 +144,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------------------------------------------------
     # for coin in Bithumb.get_tickers():
     #     print(coin, bithumb.get_balance(coin))
+
 
     # ----------------------------------------------------------------------------------------------
     # 매도 주문
