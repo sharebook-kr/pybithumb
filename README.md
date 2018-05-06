@@ -34,7 +34,7 @@ for coin in  Bithumb.get_tickers():
 ```python
 for coin in  Bithumb.get_tickers():
     print(coin, Bithumb.get_orderbook(coin))
-```
+```  
 
 
 ## Private API
@@ -43,6 +43,11 @@ connectkey와 secretkey를 사용해서 로그인한다.
 두 key를 생성하는 방법은 [링크](http://sharebook.kr/x/ZQov)를 참조한다. 
 ```python
 bithumb = Bithumb("conkey", "seckey")
+```
+
+#### 수수료 조회
+```python
+print(bithumb.get_trading_fee())
 ```
 
 #### 잔고 조회

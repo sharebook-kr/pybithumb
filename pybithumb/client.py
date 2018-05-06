@@ -17,7 +17,7 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : (24시간저가, 24시간고가, 24시간평균거래금액, 24시간거래량)
         """
-        resp = publicApi.ticker(currency)
+        resp   = publicApi.ticker(currency)
         low    = resp['min_price']
         high   = resp['max_price']
         avg    = resp['average_price']
@@ -31,7 +31,11 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : price
         """
-        return float(publicApi.recent_transactions(currency)[0]['price'])
+        try:
+            resp = (publicApi.recent_transactions(currency))
+            return float(resp[0]['price'])
+        except TypeError:
+            return resp
 
     @staticmethod
     def get_orderbook(currency):
@@ -41,6 +45,13 @@ class Bithumb:
         :return        : 매수/매도 호가
         """
         return publicApi.orderbook(currency)
+
+    def get_trading_fee(self):
+        """
+        거래 수수료 조회
+        :return: 수수료
+        """
+        return float(self.api.account()['trade_fee'])
 
     def get_balance(self, currency):
         """
@@ -100,20 +111,20 @@ class Bithumb:
         시장가 매수
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :param unit    : 주문수량
-        :return        : (판매단가, 판매수량)
+        :return        : 성공 orderID / 실패 메시지
         """
         resp = self.api.market_buy(currency=currency, units=unit)
-        return resp['price'], resp['units']
+        return resp
 
     def sell_market_order(self, currency, unit):
         """
         시장가 매도
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :param unit    : 주문수량
-        :return        : (판매단가, 판매수량)
+        :return        : 성공 orderID / 실패 메시지
         """
         resp = self.api.market_sell(currency=currency, units=unit)
-        return resp['price'], resp['units']
+        return resp
 
 
 if __name__ == "__main__":
@@ -130,7 +141,7 @@ if __name__ == "__main__":
     #     print(coin, Bithumb.get_market_detail(coin))
 
     # ----------------------------------------------------------------------------------------------
-    # 매수/매도 호가
+    # 매수/매도 호가 (public)
     # ----------------------------------------------------------------------------------------------
     # for coin in  Bithumb.get_tickers():
     #     print(coin, Bithumb.get_orderbook(coin))
@@ -140,11 +151,27 @@ if __name__ == "__main__":
     bithumb = Bithumb(keys[0].strip(), keys[1].strip())
 
     # ----------------------------------------------------------------------------------------------
+    # 회원 정보 조회
+    # ----------------------------------------------------------------------------------------------
+    # resp = bithumb.get_trading_fee()
+    # print(resp)
+    # print("bithumb", bithumb.get_current_price("BTC"))
+
+    # ----------------------------------------------------------------------------------------------
+    # 매수/매도 호가 (private)
+    # ----------------------------------------------------------------------------------------------
+    # resp = bithumb.get_orderbook("BTC")
+    # for data in resp['asks']:
+    #     print (data['quantity'], data['price'])
+    # print("--------")
+    # for data in resp['bids']:
+    #     print (data['quantity'], data['price'])
+
+    # ----------------------------------------------------------------------------------------------
     # 잔고 조회
     # ----------------------------------------------------------------------------------------------
     # for coin in Bithumb.get_tickers():
     #     print(coin, bithumb.get_balance(coin))
-
 
     # ----------------------------------------------------------------------------------------------
     # 매도 주문
@@ -166,3 +193,10 @@ if __name__ == "__main__":
     # resp = bithumb.cancel_order(desc)
     # print(resp)
 
+    # ----------------------------------------------------------------------------------------------
+    # 시장가 매수/매도 주문
+    # ----------------------------------------------------------------------------------------------
+    # resp = bithumb.buy_market_order("BTC", 0.001)
+    # print(resp)
+    # resp = bithumb.sell_market_order("BTC", 0.001)
+    # print(resp)

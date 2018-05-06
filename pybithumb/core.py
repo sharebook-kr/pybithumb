@@ -27,6 +27,9 @@ class privateApi:
     def __init__(self, conkey, seckey):
         self.http = BithumbHttp(conkey, seckey)
 
+    def account(self, **kwargs):
+        return self.http.post('/info/account', **kwargs)
+
     def balance(self, **kwargs):
         return self.http.post('/info/balance', **kwargs)
 
@@ -104,7 +107,7 @@ class BithumbHttp(HttpMethod):
         # [예외] buy/sell API의 결괏값은 'order_id'로 전송
         if response.get('order_id'):
             return response['order_id']
-        # [예외] calcel API의 결괏값은 'status'만 전송
+        # [예외] cancel API의 결괏값은 'status'만 전송
         if not response.get('data'):
             return response['status']
         # 빗썸 API 대부분의 정보는 'data'로 전송
