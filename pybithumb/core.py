@@ -4,9 +4,11 @@ import hmac
 import time
 import urllib
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 
-class publicApi:
+class PublicApi:
     @staticmethod
     def ticker(currency):
         uri = "/public/ticker/" + currency
@@ -23,7 +25,7 @@ class publicApi:
         return BithumbHttp().get(uri)
 
 
-class privateApi:
+class PrivateApi:
     def __init__(self, conkey, seckey):
         self.http = BithumbHttp(conkey, seckey)
 
@@ -39,6 +41,9 @@ class privateApi:
     def orders(self, **kwargs):
         return self.http.post('/info/orders', **kwargs)
 
+    def order_detail(self, **kwargs):
+        return self.http.post('/info/order_detail', **kwargs)
+
     def cancel(self, **kwargs):
         return self.http.post('/trade/cancel', **kwargs)
 
@@ -51,27 +56,39 @@ class privateApi:
 
 class HttpMethod:
     def __init__(self):
-        self.session = requests.session()
+        self.session = self._requests_retry_session()
+
+    def _requests_retry_session(retries=5, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None):
+        s = session or requests.Session()
+        retry = Retry(total=retries, read=retries, connect=retries, backoff_factor=backoff_factor,
+                      status_forcelist=status_forcelist)
+        adapter = HTTPAdapter(max_retries=retry)
+        s.mount('http://', adapter)
+        s.mount('https://', adapter)
+        return s
 
     @property
     def base_url(self):
         return ""
 
-    def _handle_response(self, response):
-        return response.json()
-
     def update_headers(self, headers):
         self.session.headers.update(headers)
 
     def post(self, path, timeout=3, **kwargs):
-        uri = self.base_url + path
-        response = self.session.post(url=uri, data=kwargs, timeout=timeout)
-        return self._handle_response(response)
+        try:
+            uri = self.base_url + path
+            return self.session.post(url=uri, data=kwargs, timeout=timeout).json()
+        except Exception as x:
+            print("It failed", x.__class__.__name__)
+            return None
 
     def get(self, path, timeout=3, **kwargs):
-        uri = self.base_url + path
-        response = self.session.get(url=uri, params=kwargs, timeout=timeout)
-        return self._handle_response(response)
+        try:
+            uri = self.base_url + path
+            return self.session.get(url=uri, params=kwargs, timeout=timeout).json()
+        except Exception as x:
+            print("It failed", x.__class__.__name__)
+            return None
 
 
 class BithumbHttp(HttpMethod):
@@ -99,16 +116,3 @@ class BithumbHttp(HttpMethod):
             'Api-Nonce': nonce
         })
         return super().post(path, **kwargs)
-
-    def _handle_response(self, response):
-        response = super()._handle_response(response)
-        if response['status'] != '0000':
-            return [response['message']]
-        # [예외] buy/sell API의 결괏값은 'order_id'로 전송
-        if response.get('order_id'):
-            return response['order_id']
-        # [예외] cancel API의 결괏값은 'status'만 전송
-        if not response.get('data'):
-            return response['status']
-        # 빗썸 API 대부분의 정보는 'data'로 전송
-        return response['data']

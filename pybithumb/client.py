@@ -1,9 +1,8 @@
 from pybithumb.core import *
 
-
 class Bithumb:
     def __init__(self, conkey, seckey):
-        self.api = privateApi(conkey, seckey)
+        self.api = PrivateApi(conkey, seckey)
 
     @staticmethod
     def get_tickers():
@@ -17,12 +16,16 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : (24시간저가, 24시간고가, 24시간평균거래금액, 24시간거래량)
         """
-        resp   = publicApi.ticker(currency)
-        low    = resp['min_price']
-        high   = resp['max_price']
-        avg    = resp['average_price']
-        volume = resp['units_traded']
-        return float(low), float(high), float(avg), float(volume)
+        try:
+            resp   = PublicApi.ticker(currency)
+            low    = resp['data']['min_price']
+            high   = resp['data']['max_price']
+            avg    = resp['data']['average_price']
+            volume = resp['data']['units_traded']
+            return float(low), float(high), float(avg), float(volume)
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     @staticmethod
     def get_current_price(currency):
@@ -32,10 +35,11 @@ class Bithumb:
         :return        : price
         """
         try:
-            resp = (publicApi.recent_transactions(currency))
-            return float(resp[0]['price'])
-        except TypeError:
-            return resp
+            resp = PublicApi.recent_transactions(currency)
+            return resp['data'][0]['price']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     @staticmethod
     def get_orderbook(currency):
@@ -44,14 +48,24 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : 매수/매도 호가
         """
-        return publicApi.orderbook(currency)
+        try:
+            resp = PublicApi.orderbook(currency)
+            return resp['data']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def get_trading_fee(self):
         """
         거래 수수료 조회
         :return: 수수료
         """
-        return float(self.api.account()['trade_fee'])
+        try:
+            resp = self.api.account()
+            return float(resp['data']['trade_fee'])
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def get_balance(self, currency):
         """
@@ -59,10 +73,14 @@ class Bithumb:
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : (보유코인, 사용중코인, 보유원화, 사용중원화)
         """
-        resp = self.api.balance(currency=currency)
-        specifier = currency.lower()
-        return (float(resp["total_" + specifier]), float(resp["in_use_" + specifier]),
-                float(resp["total_krw"]), float(resp["in_use_krw"]))
+        try:
+            resp = self.api.balance(currency=currency)
+            specifier = currency.lower()
+            return (float(resp['data']["total_" + specifier]), float(resp['data']["in_use_" + specifier]),
+                    float(resp['data']["total_krw"]), float(resp['data']["in_use_krw"]))
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def buy_limit_order(self, currency, price, unit):
         """
@@ -72,9 +90,13 @@ class Bithumb:
         :param unit    : 주문 수량
         :return        : (주문Type, currency, 주문ID)
         """
-        unit = "{0:.4f}".format(unit)
-        order_id = self.api.place(type="bids", price=price, units=unit, order_currency=currency)
-        return "bids", currency, order_id
+        try:
+            unit = "{0:.4f}".format(unit)
+            resp = self.api.place(type="bid", price=price, units=unit, order_currency=currency)
+            return "bid", currency, resp['order_id']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def sell_limit_order(self, currency, price, unit):
         """
@@ -84,9 +106,13 @@ class Bithumb:
         :param unit    : 주문 수량
         :return        : (주문Type, currency, 주문ID)
         """
-        unit = "{0:.4f}".format(unit)
-        order_id = self.api.place(type="asks", price=price, units=unit, order_currency=currency)
-        return "asks", currency, order_id
+        try:
+            unit = "{0:.4f}".format(unit)
+            resp = self.api.place(type="ask", price=price, units=unit, order_currency=currency)
+            return "ask", currency, resp['order_id']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def get_outstanding_order(self, order_desc):
         """
@@ -94,17 +120,42 @@ class Bithumb:
         :param order_desc: (주문Type, currency, 주문ID)
         :return          : 거래 미체결 수량
         """
-        resp =  self.api.orders(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
-        # HACK : 빗썸이 데이터를 리스트에 넣어줌
-        return resp[0]['units_remaining']
+        try:
+            resp = self.api.orders(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
+            # HACK : 빗썸이 데이터를 리스트에 넣어줌
+            if resp['status'] == '5600':
+                return 0
+            return resp['data'][0]['units_remaining']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
+
+    def get_order_completed(self, order_desc):
+        """
+        거래 완료 정보 조회
+        :param order_desc: (주문Type, currency, 주문ID)
+        :return          : 거래정보
+        """
+        try:
+            resp =  self.api.order_detail(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
+            # HACK : 빗썸이 데이터를 리스트에 넣어줌
+            return resp['data'][0]
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def cancel_order(self, order_desc):
         """
         매수/매도 주문 취소
         :param order_desc: (주문Type, currency, 주문ID)
-        :return          : 성공: 0000 / 실패: message
+        :return          : 성공: True / 실패: False
         """
-        return self.api.cancel(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
+        try:
+            resp = self.api.cancel(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
+            return resp['status'] == '0000'
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def buy_market_order(self, currency, unit):
         """
@@ -113,8 +164,12 @@ class Bithumb:
         :param unit    : 주문수량
         :return        : 성공 orderID / 실패 메시지
         """
-        resp = self.api.market_buy(currency=currency, units=unit)
-        return resp
+        try:
+            resp = self.api.market_buy(currency=currency, units=unit)
+            return resp['order_id']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     def sell_market_order(self, currency, unit):
         """
@@ -123,80 +178,9 @@ class Bithumb:
         :param unit    : 주문수량
         :return        : 성공 orderID / 실패 메시지
         """
-        resp = self.api.market_sell(currency=currency, units=unit)
-        return resp
-
-
-if __name__ == "__main__":
-    # ----------------------------------------------------------------------------------------------
-    # 최종 체결 가격
-    # ----------------------------------------------------------------------------------------------
-    # for coin in Bithumb.get_tickers():
-    #     print(coin, Bithumb.get_current_price(coin))
-
-    # ----------------------------------------------------------------------------------------------
-    # 시장 현황 상세정보
-    # ----------------------------------------------------------------------------------------------
-    # for coin in  Bithumb.get_tickers():
-    #     print(coin, Bithumb.get_market_detail(coin))
-
-    # ----------------------------------------------------------------------------------------------
-    # 매수/매도 호가 (public)
-    # ----------------------------------------------------------------------------------------------
-    # for coin in  Bithumb.get_tickers():
-    #     print(coin, Bithumb.get_orderbook(coin))
-
-    import csv
-    keys = next(csv.reader(open("keys.csv")))
-    bithumb = Bithumb(keys[0].strip(), keys[1].strip())
-
-    # ----------------------------------------------------------------------------------------------
-    # 회원 정보 조회
-    # ----------------------------------------------------------------------------------------------
-    # resp = bithumb.get_trading_fee()
-    # print(resp)
-    # print("bithumb", bithumb.get_current_price("BTC"))
-
-    # ----------------------------------------------------------------------------------------------
-    # 매수/매도 호가 (private)
-    # ----------------------------------------------------------------------------------------------
-    # resp = bithumb.get_orderbook("BTC")
-    # for data in resp['asks']:
-    #     print (data['quantity'], data['price'])
-    # print("--------")
-    # for data in resp['bids']:
-    #     print (data['quantity'], data['price'])
-
-    # ----------------------------------------------------------------------------------------------
-    # 잔고 조회
-    # ----------------------------------------------------------------------------------------------
-    # for coin in Bithumb.get_tickers():
-    #     print(coin, bithumb.get_balance(coin))
-
-    # ----------------------------------------------------------------------------------------------
-    # 매도 주문
-    # ----------------------------------------------------------------------------------------------
-    # desc = bithumb.sell_limit_order("BTC", 11000000, 0.00844498)
-    # print(desc)
-    # desc = bithumb.buy_limit_order("BTC", 11000000, 0.00844498)
-    # print(desc)
-
-    # ----------------------------------------------------------------------------------------------
-    # 매수/매도 잔량 확인
-    # ----------------------------------------------------------------------------------------------
-    # quanity = bithumb.get_outstanding_order(desc)
-    # print(quanity)
-
-    # ----------------------------------------------------------------------------------------------
-    # 매수/매도 주문 취소
-    # ----------------------------------------------------------------------------------------------
-    # resp = bithumb.cancel_order(desc)
-    # print(resp)
-
-    # ----------------------------------------------------------------------------------------------
-    # 시장가 매수/매도 주문
-    # ----------------------------------------------------------------------------------------------
-    # resp = bithumb.buy_market_order("BTC", 0.001)
-    # print(resp)
-    # resp = bithumb.sell_market_order("BTC", 0.001)
-    # print(resp)
+        try:
+            resp = self.api.market_sell(currency=currency, units=unit)
+            return resp['order_id']
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
