@@ -6,8 +6,8 @@ class Bithumb:
 
     @staticmethod
     def get_tickers():
-        return ["BTC", "ETH", "DASH", "LTC", "ETC", "XRP", "BCH", "XMR", "ZEC", "QTUM",
-                "BTG", "EOS", "ICX", "VEN", "TRX", "ELF", "MITH", "MCO", "OMG", "KNC"]
+        resp = PublicApi.ticker("ALL")
+        return resp['data'].keys()
 
     @staticmethod
     def get_market_detail(currency):
@@ -35,7 +35,7 @@ class Bithumb:
         :return        : price
         """
         try:
-            resp = PublicApi.recent_transactions(currency)
+            resp = PublicApi.transaction_history(currency)
             return resp['data'][0]['price']
         except Exception as x:
             print(x.__class__.__name__, resp)

@@ -15,8 +15,8 @@ class PublicApi:
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def recent_transactions(currency):
-        uri = "/public/recent_transactions/" + currency
+    def transaction_history(currency):
+        uri = "/public/transaction_history/" + currency
         return BithumbHttp().get(uri)
 
     @staticmethod
