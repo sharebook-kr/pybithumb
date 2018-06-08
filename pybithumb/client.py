@@ -38,8 +38,15 @@ class Bithumb:
         """
         try:
             resp = None
-            resp = PublicApi.transaction_history(currency)
-            return resp['data'][0]['price']
+            resp = PublicApi.ticker(currency)
+
+            if currency is not "ALL":
+                return resp['data']['closing_price']
+            else:
+                return resp["data"]
+            #resp = PublicApi.transaction_history(currency)
+            #return resp['data'][0]['price']
+
         except Exception as x:
             print(x.__class__.__name__, resp)
             return None
@@ -197,3 +204,7 @@ class Bithumb:
         except Exception as x:
             print(x.__class__.__name__, resp)
             return None
+
+if __name__ == "__main__":
+    print(Bithumb.get_current_price("BTC"))
+    print(Bithumb.get_current_price("ALL"))
