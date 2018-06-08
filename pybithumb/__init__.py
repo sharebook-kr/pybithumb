@@ -1,4 +1,5 @@
 from pybithumb.client import Bithumb
+from .history import *
 
 
 def get_tickers():

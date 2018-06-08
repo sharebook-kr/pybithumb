@@ -8,7 +8,7 @@ class Bithumb:
     @staticmethod
     def get_tickers():
         resp = PublicApi.ticker("ALL")
-        return resp['data'].keys()
+        return list(resp['data'].keys())[:-1]
 
     @staticmethod
     def get_market_detail(currency):
