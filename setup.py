@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name            = 'pybithumb',
-    version         = '0.1.7',
+    version         = '0.1.8',
     description     = 'python wrapper for Bithumb API',
     url             = 'https://github.com/sharebook/pybithumb',
     author          = 'Lukas Yoo, Brayden Jo',
