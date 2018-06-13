@@ -7,8 +7,31 @@ class Bithumb:
 
     @staticmethod
     def get_tickers():
+        """
+        빗썸이 지원하는 암호화폐의 리스트
+        :return:
+        """
         resp = PublicApi.ticker("ALL")
         return list(resp['data'].keys())[:-1]
+
+    @staticmethod
+    def get_ohlc(currency):
+        """
+        최근 24시간 내 암호 화폐의 OHLC의 튜플
+        :return: (시가, 고가, 저가, 종가)
+        """
+        try:
+            resp = None
+            resp = PublicApi.ticker(currency)
+
+            if currency is not "ALL":
+                return resp['data']['opening_price'], resp['data']['max_price'], resp['data']['min_price'], resp['data']['closing_price']
+            else:
+                return resp["data"]
+
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     @staticmethod
     def get_market_detail(currency):
@@ -44,8 +67,6 @@ class Bithumb:
                 return resp['data']['closing_price']
             else:
                 return resp["data"]
-            #resp = PublicApi.transaction_history(currency)
-            #return resp['data'][0]['price']
 
         except Exception as x:
             print(x.__class__.__name__, resp)
@@ -204,6 +225,7 @@ class Bithumb:
         except Exception as x:
             print(x.__class__.__name__, resp)
             return None
+
 
 if __name__ == "__main__":
     print(Bithumb.get_current_price("BTC"))

@@ -2,6 +2,10 @@ from pybithumb.client import Bithumb
 from .history import *
 
 
+def get_ohlc(currency):
+    return Bithumb.get_ohlc(currency)
+
+
 def get_tickers():
     return Bithumb.get_tickers()
 
