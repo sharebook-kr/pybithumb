@@ -64,7 +64,7 @@ class Bithumb:
             resp = PublicApi.ticker(currency)
 
             if currency is not "ALL":
-                return resp['data']['closing_price']
+                return float(resp['data']['closing_price'])
             else:
                 return resp["data"]
 
