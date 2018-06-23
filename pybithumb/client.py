@@ -11,8 +11,12 @@ class Bithumb:
         빗썸이 지원하는 암호화폐의 리스트
         :return:
         """
-        resp = PublicApi.ticker("ALL")
-        return list(resp['data'].keys())[:-1]
+        try:
+            resp = PublicApi.ticker("ALL")
+            return list(resp['data'].keys())[:-1]
+        except Exception as x:
+            print(x.__class__.__name__, resp)
+            return None
 
     @staticmethod
     def get_ohlc(currency):
@@ -227,4 +231,7 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    data = Bithumb.get_ohlc("ALL")
+    print(Bithumb.get_tickers())
+    print(Bithumb.get_current_price("BTC"))
+    print(Bithumb.get_current_price("ALL"))
+
