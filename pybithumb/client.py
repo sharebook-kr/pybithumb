@@ -18,16 +18,26 @@ class Bithumb:
     def get_ohlc(currency):
         """
         최근 24시간 내 암호 화폐의 OHLC의 튜플
-        :return: (시가, 고가, 저가, 종가)
+        :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :return        : 코인과 (시가, 고가, 저가, 종가) 가 딕셔너리로 저장
+          {
+            'BTC' : (7020000.0, 7093000.0, 6810000.0, 6971000.0)
+            'ETH' : ( 720000.0,  703000.0,  681000.0,  697000.0)
+          }
         """
         try:
-            resp = None
-            resp = PublicApi.ticker(currency)
+            resp = PublicApi.ticker(currency)['data']
+            if currency is "ALL":
+                del resp['date']
+                data = {}
+                for key in resp:
+                        data[key] = (resp[key]['opening_price'], resp[key]['max_price'], resp[key]['min_price'], resp[key]['closing_price'])
+                return data
 
-            if currency is not "ALL":
-                return float(resp['data']['opening_price']), float(resp['data']['max_price']), float(resp['data']['min_price']), float(resp['data']['closing_price'])
-            else:
-                return resp["data"]
+            return {
+                currency: (float(resp['opening_price']), float(resp['max_price']), float(resp['min_price']),
+                           float(resp['closing_price']))
+            }
 
         except Exception as x:
             print(x.__class__.__name__, resp)
@@ -60,7 +70,6 @@ class Bithumb:
         :return        : price
         """
         try:
-            resp = None
             resp = PublicApi.ticker(currency)
 
             if currency is not "ALL":
@@ -80,7 +89,6 @@ class Bithumb:
         :return        : 매수/매도 호가
         """
         try:
-            resp = None
             resp = PublicApi.orderbook(currency)
             return resp['data']
         except Exception as x:
@@ -93,7 +101,6 @@ class Bithumb:
         :return: 수수료
         """
         try:
-            resp = None
             resp = self.api.account()
             return float(resp['data']['trade_fee'])
         except Exception as x:
@@ -107,7 +114,6 @@ class Bithumb:
         :return        : (보유코인, 사용중코인, 보유원화, 사용중원화)
         """
         try:
-            resp = None
             resp = self.api.balance(currency=currency)
             specifier = currency.lower()
             return (float(resp['data']["total_" + specifier]), float(resp['data']["in_use_" + specifier]),
@@ -125,8 +131,6 @@ class Bithumb:
         :return        : (주문Type, currency, 주문ID)
         """
         try:
-            unit = "{0:.4f}".format(unit)
-            resp = None
             resp = self.api.place(type="bid", price=price, units=unit, order_currency=currency)
             return "bid", currency, resp['order_id']
         except Exception as x:
@@ -142,8 +146,6 @@ class Bithumb:
         :return        : (주문Type, currency, 주문ID)
         """
         try:
-            resp = None
-            unit = "{0:.4f}".format(unit)
             resp = self.api.place(type="ask", price=price, units=unit, order_currency=currency)
             return "ask", currency, resp['order_id']
         except Exception as x:
@@ -157,11 +159,10 @@ class Bithumb:
         :return          : 거래 미체결 수량
         """
         try:
-            resp = None
             resp = self.api.orders(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
-            # HACK : 빗썸이 데이터를 리스트에 넣어줌
             if resp['status'] == '5600':
-                return 0
+                return None
+            # HACK : 빗썸이 데이터를 리스트에 넣어줌
             return resp['data'][0]['units_remaining']
         except Exception as x:
             print(x.__class__.__name__, resp)
@@ -174,8 +175,9 @@ class Bithumb:
         :return          : 거래정보
         """
         try:
-            resp = None
             resp = self.api.order_detail(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
+            if resp['status'] == '5600':
+                return None
             # HACK : 빗썸이 데이터를 리스트에 넣어줌
             return resp['data'][0]
         except Exception as x:
@@ -189,7 +191,6 @@ class Bithumb:
         :return          : 성공: True / 실패: False
         """
         try:
-            resp = None
             resp = self.api.cancel(type=order_desc[0], currency=order_desc[1], order_id=order_desc[2])
             return resp['status'] == '0000'
         except Exception as x:
@@ -204,7 +205,6 @@ class Bithumb:
         :return        : 성공 orderID / 실패 메시지
         """
         try:
-            resp = None
             resp = self.api.market_buy(currency=currency, units=unit)
             return resp['order_id']
         except Exception as x:
@@ -219,7 +219,6 @@ class Bithumb:
         :return        : 성공 orderID / 실패 메시지
         """
         try:
-            resp = None
             resp = self.api.market_sell(currency=currency, units=unit)
             return resp['order_id']
         except Exception as x:
@@ -228,5 +227,4 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    print(Bithumb.get_current_price("BTC"))
-    print(Bithumb.get_current_price("ALL"))
+    data = Bithumb.get_ohlc("ALL")
