@@ -1,9 +1,17 @@
 from pybithumb.core import *
-
+import math
 
 class Bithumb:
     def __init__(self, conkey, seckey):
         self.api = PrivateApi(conkey, seckey)
+
+    @staticmethod
+    def _convert_unit(unit):
+        try:
+            unit = math.floor(unit * 10000) / 10000
+            return unit
+        except:
+            return 0
 
     @staticmethod
     def get_tickers():
@@ -135,6 +143,7 @@ class Bithumb:
         :return        : (주문Type, currency, 주문ID)
         """
         try:
+            unit = Bithumb._convert_unit(unit)
             resp = self.api.place(type="bid", price=price, units=unit, order_currency=currency)
             return "bid", currency, resp['order_id']
         except Exception as x:
@@ -150,6 +159,7 @@ class Bithumb:
         :return        : (주문Type, currency, 주문ID)
         """
         try:
+            unit = Bithumb._convert_unit(unit)
             resp = self.api.place(type="ask", price=price, units=unit, order_currency=currency)
             return "ask", currency, resp['order_id']
         except Exception as x:
@@ -209,6 +219,7 @@ class Bithumb:
         :return        : 성공 orderID / 실패 메시지
         """
         try:
+            unit = Bithumb._convert_unit(unit)
             resp = self.api.market_buy(currency=currency, units=unit)
             return resp['order_id']
         except Exception as x:
@@ -223,6 +234,7 @@ class Bithumb:
         :return        : 성공 orderID / 실패 메시지
         """
         try:
+            unit = Bithumb._convert_unit(unit)
             resp = self.api.market_sell(currency=currency, units=unit)
             return resp['order_id']
         except Exception as x:
@@ -231,6 +243,7 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    print(Bithumb.get_orderbook("BTC", 1))
-
+    print(Bithumb.get_tickers())
+    print(Bithumb.get_current_price("BTC"))
+    print(Bithumb.get_current_price("ALL"))
 
