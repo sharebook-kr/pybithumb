@@ -94,14 +94,14 @@ class Bithumb:
             return None
 
     @staticmethod
-    def get_orderbook(currency, count=5):
+    def get_orderbook(currency, limit=5):
         """
         매수/매도 호가 조회
         :param currency: BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
         :return        : 매수/매도 호가
         """
         try:
-            resp = PublicApi.orderbook(currency, count)
+            resp = PublicApi.orderbook(currency, limit)
             return resp['data']
         except Exception as x:
             print(x.__class__.__name__, resp)

@@ -18,5 +18,5 @@ def get_current_price(currency):
     return Bithumb.get_current_price(currency)
 
 
-def get_orderbook(currency):
-    return Bithumb.get_orderbook(currency)
+def get_orderbook(currency, limit=5):
+    return Bithumb.get_orderbook(currency, limit)
