@@ -20,8 +20,8 @@ class PublicApi:
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def orderbook(currency):
-        uri = "/public/orderbook/" + currency
+    def orderbook(currency, count=5):
+        uri = "/public/orderbook/{}?count={}".format(currency, count)
         return BithumbHttp().get(uri)
 
 
