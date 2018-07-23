@@ -2,9 +2,13 @@ import requests
 import datetime
 import pandas as pd
 
-def get_ohlcv(symbol="BTC"):
+def get_ohlcv(symbol="BTC", interval="day"):
     try:
-        url = "https://www.bithumb.com/resources/chart/{}_xcoinTrade_24H.json".format(symbol)
+        if interval == "hour":
+            url = "https://www.bithumb.com/resources/chart/{}_xcoinTrade_01H.json".format(symbol)
+        else:
+            url = "https://www.bithumb.com/resources/chart/{}_xcoinTrade_24H.json".format(symbol)
+
         r = requests.get(url)
         contents = r.json()
 
@@ -24,4 +28,5 @@ def get_ohlcv(symbol="BTC"):
 
 
 if __name__ == "__main__":
-    print(get_ohlcv("BTC"))
+    #print(get_ohlcv("BTC"))
+    print(get_ohlcv("BTC", interval="hour"))
