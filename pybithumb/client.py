@@ -21,7 +21,11 @@ class Bithumb:
         """
         try:
             resp = PublicApi.ticker("ALL")
-            return list(resp['data'].keys())[:-1]
+            keys = resp['data'].keys()
+            tickers = list(keys)
+            if 'date' in tickers:
+                tickers.remove('date')
+            return tickers
         except Exception as x:
             print(x.__class__.__name__, resp)
             return None
