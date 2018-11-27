@@ -91,6 +91,7 @@ class Bithumb:
             if currency is not "ALL":
                 return float(resp['data']['closing_price'])
             else:
+                del resp["data"]['date']
                 return resp["data"]
 
         except Exception as x:

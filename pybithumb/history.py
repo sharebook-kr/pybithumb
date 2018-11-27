@@ -23,20 +23,14 @@ def get_ohlcv(symbol="BTC", interval="day"):
             url = "https://www.bithumb.com/resources/chart/{}_xcoinTrade_12H.json".format(symbol)
         else:
             url = "https://www.bithumb.com/resources/chart/{}_xcoinTrade_24H.json".format(symbol)
+        contents = requests.get(url).json()
 
-        r = requests.get(url)
-        contents = r.json()
-
-        ohlcv_list = []
-        date_list = []
+        ohlcv = {}
         for x in contents:
-            timestamp = x[0]
-            date = datetime.datetime.fromtimestamp(timestamp/1000)
-            date_list.append(date)
-            ohlcv = {'open': float(x[1]), 'high': float(x[3]), 'low': float(x[4]), 'close': float(x[2]), 'volume': float(x[5])}
-            ohlcv_list.append(ohlcv)
-
-        df = pd.DataFrame(ohlcv_list, columns=['open', 'high', 'low', 'close', 'volume'], index=date_list)
+            date = datetime.datetime.fromtimestamp(x[0]/1000)
+            ohlcv[date] = [x[1], x[3], x[4], x[2], x[5]]
+        df = pd.DataFrame.from_dict(ohlcv, columns=['open', 'high', 'low', 'close', 'volume'], orient='index').astype(
+                          dtype=float)
         return df
     except:
         return None
@@ -44,4 +38,5 @@ def get_ohlcv(symbol="BTC", interval="day"):
 
 if __name__ == "__main__":
     df = get_ohlcv("BTC", interval="minute5")
+    print(df)
     print(df.head())
