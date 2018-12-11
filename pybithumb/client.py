@@ -106,8 +106,15 @@ class Bithumb:
         :return        : 매수/매도 호가
         """
         try:
+            limit = min(limit, 20)
             resp = PublicApi.orderbook(currency, limit)
-            return resp['data']
+            data = resp['data']
+            for idx in range(len(data['bids'])) :
+                data['bids'][idx]['quantity'] = float(data['bids'][idx]['quantity'])
+                data['asks'][idx]['quantity'] = float(data['asks'][idx]['quantity'])
+                data['bids'][idx]['price'] = float(data['bids'][idx]['price'])
+                data['asks'][idx]['price'] = float(data['asks'][idx]['price'])
+            return data
         except Exception as x:
             print(x.__class__.__name__, resp)
             return None
