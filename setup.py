@@ -7,7 +7,7 @@ setup(
     url             = 'https://github.com/sharebook-kr/pybithumb',
     author          = 'Lukas Yoo, Brayden Jo',
     author_email    = 'jonghun.yoo@outlook.com, pystock@outlook.com',
-    install_requires=['requests'],
+    install_requires=['requests', 'pandas'],
     license         = 'MIT',
     packages        = ['pybithumb'],
     zip_safe        = False
