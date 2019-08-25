@@ -49,7 +49,7 @@ def get_ohlcv(symbol="BTC", interval="day"):
         for x in resp['data']:
             x[0] = datetime.datetime.fromtimestamp(x[0] / 1000)
 
-        columns = [symbol, 'open', 'high', 'low', 'close', 'volume']
+        columns = [symbol, 'open', 'close', 'high', 'low', 'volume']
         df = DataFrame(resp['data'], columns=columns)
         df = df.set_index(symbol)
         return df.astype(float)
@@ -60,8 +60,9 @@ def get_ohlcv(symbol="BTC", interval="day"):
 
 if __name__ == "__main__":
     import time
-
+    import pandas as pd
+    pd.set_option('display.expand_frame_repr', False)
     for ticker in ["BTC", "LTC"]:
-        df = get_ohlcv(ticker, interval="minute5")
-        print(df.head(2))
+        df = get_ohlcv(ticker, interval="day")
+        print(df.tail(2))
         time.sleep(0.3)
