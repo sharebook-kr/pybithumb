@@ -11,5 +11,5 @@ pytz==2018.4
 requests==2.18.4
 six==1.11.0
 soupsieve==1.9.3
-urllib3==1.22html5lib
+urllib3==1.22
 webencodings==0.5.1

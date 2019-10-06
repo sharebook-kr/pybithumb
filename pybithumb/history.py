@@ -29,7 +29,7 @@ def get_ohlcv(symbol="BTC", interval="day"):
         tk2ct = {v['symbol_name']: k for k, v in coin['C0100'].items()}
 
         # parsing xcoin name
-        selector = "#barcodeForm > input[type=hidden]:nth-child(2)"
+        selector = "#barcodeForm > input[name=csrf_xcoin_name]"
         soup = BeautifulSoup(html, 'html5lib')
         xcoin_name = soup.select(selector)[0]['value']
 
