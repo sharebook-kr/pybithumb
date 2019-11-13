@@ -5,7 +5,7 @@ from pandas import DataFrame
 from bs4 import BeautifulSoup
 
 
-def get_ohlcv(symbol="BTC", interval="day"):
+def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
     try:
         # for backward compatibility
         int2type = {
@@ -19,7 +19,8 @@ def get_ohlcv(symbol="BTC", interval="day"):
             "minute3": "03M",
         }
 
-        url = "https://m.bithumb.com/trade/chart/{}".format(symbol)
+        url = "https://m.bithumb.com/trade/chart/{}_{}".format(order_currency,
+                                                               payment_currency)
         resp = requests.get(url)
         html = resp.text
 
@@ -39,7 +40,7 @@ def get_ohlcv(symbol="BTC", interval="day"):
             "x-requested-with": "XMLHttpRequest"
         }
         data = {
-            "coinType": tk2ct[symbol],
+            "coinType": tk2ct[order_currency],
             "crncCd": "C0100",
             "tickType": int2type[interval],
             "csrf_xcoin_name": xcoin_name
@@ -49,9 +50,9 @@ def get_ohlcv(symbol="BTC", interval="day"):
         for x in resp['data']:
             x[0] = datetime.datetime.fromtimestamp(x[0] / 1000)
 
-        columns = [symbol, 'open', 'close', 'high', 'low', 'volume']
+        columns = [order_currency, 'open', 'close', 'high', 'low', 'volume']
         df = DataFrame(resp['data'], columns=columns)
-        df = df.set_index(symbol)
+        df = df.set_index(order_currency)
         return df.astype(float)
 
     except:

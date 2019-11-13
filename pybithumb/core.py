@@ -10,18 +10,20 @@ from urllib3.util.retry import Retry
 
 class PublicApi:
     @staticmethod
-    def ticker(currency):
-        uri = "/public/ticker/" + currency
+    def ticker(order_currency, payment_currency="KRW"):
+        uri = "/public/ticker/{}_{}".format(order_currency, payment_currency)
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def transaction_history(currency):
-        uri = "/public/transaction_history/" + currency
+    def transaction_history(order_currency, payment_currency="KRW"):
+        uri = "/public/transaction_history/{}_{}".format(order_currency,
+                                                    payment_currency)
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def orderbook(currency, limit=5):
-        uri = "/public/orderbook/{}?count={}".format(currency, limit)
+    def orderbook(order_currency, payment_currency="KRW", limit=5):
+        uri = "/public/orderbook/{}_{}?count={}".format(order_currency,
+                                                     payment_currency, limit)
         return BithumbHttp().get(uri)
 
 
@@ -58,9 +60,11 @@ class HttpMethod:
     def __init__(self):
         self.session = self._requests_retry_session()
 
-    def _requests_retry_session(retries=5, backoff_factor=0.3, status_forcelist=(500, 502, 504), session=None):
+    def _requests_retry_session(retries=5, backoff_factor=0.3,
+                                status_forcelist=(500, 502, 504), session=None):
         s = session or requests.Session()
-        retry = Retry(total=retries, read=retries, connect=retries, backoff_factor=backoff_factor,
+        retry = Retry(total=retries, read=retries, connect=retries,
+                      backoff_factor=backoff_factor,
                       status_forcelist=status_forcelist)
         adapter = HTTPAdapter(max_retries=retry)
         s.mount('http://', adapter)
@@ -77,7 +81,8 @@ class HttpMethod:
     def post(self, path, timeout=3, **kwargs):
         try:
             uri = self.base_url + path
-            return self.session.post(url=uri, data=kwargs, timeout=timeout).json()
+            return self.session.post(url=uri, data=kwargs, timeout=timeout).\
+                json()
         except Exception as x:
             print("It failed", x.__class__.__name__)
             return None
@@ -85,7 +90,8 @@ class HttpMethod:
     def get(self, path, timeout=3, **kwargs):
         try:
             uri = self.base_url + path
-            return self.session.get(url=uri, params=kwargs, timeout=timeout).json()
+            return self.session.get(url=uri, params=kwargs, timeout=timeout).\
+                json()
         except Exception as x:
             print("It failed", x.__class__.__name__)
             return None
@@ -102,8 +108,10 @@ class BithumbHttp(HttpMethod):
         return "https://api.bithumb.com"
 
     def _signature(self, path, nonce, **kwargs):
-        query_string = path + chr(0) + urllib.parse.urlencode(kwargs) + chr(0) + nonce
-        h = hmac.new(self.API_SECRET, query_string.encode('utf-8'), hashlib.sha512)
+        query_string = path + chr(0) + urllib.parse.urlencode(kwargs) + \
+                       chr(0) + nonce
+        h = hmac.new(self.API_SECRET, query_string.encode('utf-8'),
+                     hashlib.sha512)
         return base64.b64encode(h.hexdigest().encode('utf-8'))
 
     def post(self, path, **kwargs):
