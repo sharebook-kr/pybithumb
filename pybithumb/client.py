@@ -1,4 +1,5 @@
 from pybithumb.core import *
+import datetime
 import math
 
 
@@ -124,6 +125,15 @@ class Bithumb:
             return data
         except Exception:
             return resp
+
+    @staticmethod
+    def get_btci():
+        try:
+            data = PublicApi.btci()['data']
+            data['date'] = datetime.datetime.fromtimestamp(int(data['date']) / 1e3)
+            return data
+        except Exception:
+            return None
 
     def get_trading_fee(self, order_currency, payment_currency="KRW"):
         """
@@ -291,8 +301,8 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    print(Bithumb.get_tickers())
-    print(Bithumb.get_orderbook("BTC"))
-    print(Bithumb.get_current_price("BTC"))
-    print(Bithumb.get_current_price("ALL"))
-
+    # print(Bithumb.get_tickers())
+    # print(Bithumb.get_orderbook("BTC"))
+    # print(Bithumb.get_current_price("BTC"))
+    # print(Bithumb.get_current_price("ALL"))
+    print(Bithumb.get_btci())

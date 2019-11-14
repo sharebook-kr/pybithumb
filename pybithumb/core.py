@@ -26,6 +26,11 @@ class PublicApi:
                                                      payment_currency, limit)
         return BithumbHttp().get(uri)
 
+    @staticmethod
+    def btci():
+        uri = "/public/btci"
+        return BithumbHttp().get(uri)
+
 
 class PrivateApi:
     def __init__(self, conkey, seckey):
