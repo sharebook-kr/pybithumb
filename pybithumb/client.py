@@ -35,7 +35,7 @@ class Bithumb:
     def get_ohlc(order_currency, payment_currency="KRW"):
         """
         최근 24시간 내 암호 화폐의 OHLC의 튜플
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :return                 : 코인과 (시가, 고가, 저가, 종가) 가 딕셔너리로 저장
           {
@@ -68,7 +68,7 @@ class Bithumb:
     def get_market_detail(order_currency, payment_currency="KRW"):
         """
         거래소 마지막 거래 정보 조회
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :return                 : (24시간저가, 24시간고가, 24시간평균거래금액, 24시간거래량)
         """
@@ -87,7 +87,7 @@ class Bithumb:
     def get_current_price(order_currency, payment_currency="KRW"):
         """
         최종 체결 가격 조회
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :return                 : price
         """
@@ -106,7 +106,7 @@ class Bithumb:
     def get_orderbook(order_currency, payment_currency="KRW", limit=5):
         """
         매수/매도 호가 조회
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :return                 : 매수/매도 호가
         """
@@ -138,7 +138,7 @@ class Bithumb:
     def get_trading_fee(self, order_currency, payment_currency="KRW"):
         """
         거래 수수료 조회
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :return                 : 수수료
         """
@@ -150,18 +150,16 @@ class Bithumb:
         except Exception:
             return resp
 
-    def get_balance(self, order_currency, payment_currency="KRW"):
+    def get_balance(self, currency):
         """
         거래소 회원의 잔고 조회
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
-        :param payment_currency : KRW
-        :return                 : (보유코인, 사용중코인, 보유원화, 사용중원화)
+        :param currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        :return           : (보유코인, 사용중코인, 보유원화, 사용중원화)
         """
         resp = None
         try:
-            resp = self.api.balance(order_currency=order_currency,
-                                    payment_currency=payment_currency)
-            specifier = order_currency.lower()
+            resp = self.api.balance(currency=currency)
+            specifier = currency.lower()
             return (float(resp['data']["total_" + specifier]),
                     float(resp['data']["in_use_" + specifier]),
                     float(resp['data']["total_krw"]),
@@ -173,7 +171,7 @@ class Bithumb:
                         payment_currency="KRW"):
         """
         매수 주문
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :param price            : 주문 가격
         :param unit             : 주문 수량
@@ -193,7 +191,7 @@ class Bithumb:
                          payment_currency="KRW"):
         """
         매도 주문
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :param price            : 주문 가격
         :param unit             : 주문 수량
@@ -266,7 +264,7 @@ class Bithumb:
     def buy_market_order(self, order_currency, unit, payment_currency="KRW"):
         """
         시장가 매수
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :param unit             : 주문수량
         :return                 : 성공 orderID / 실패 메시지
@@ -284,7 +282,7 @@ class Bithumb:
     def sell_market_order(self, order_currency, unit, payment_currency="KRW"):
         """
         시장가 매도
-        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN,TRX/ELF/MITH/MCO/OMG/KNC
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :param unit             : 주문수량
         :return                 : 성공 orderID / 실패 메시지
@@ -301,8 +299,8 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    # print(Bithumb.get_tickers())
+    print(Bithumb.get_tickers())
     # print(Bithumb.get_orderbook("BTC"))
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
-    print(Bithumb.get_btci())
+    # print(Bithumb.get_btci())
