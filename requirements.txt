@@ -9,7 +9,7 @@ numpy==1.16.1
 pandas==0.23.0
 python-dateutil==2.7.2
 pytz==2018.4
-requests==2.18.4
+requests==2.20.0
 six==1.11.0
 soupsieve==1.9.3
 urllib3==1.22
