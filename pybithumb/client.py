@@ -67,19 +67,20 @@ class Bithumb:
     @staticmethod
     def get_market_detail(order_currency, payment_currency="KRW"):
         """
-        거래소 마지막 거래 정보 조회
+        거래소 세부 정보 조회 (00시 기준)
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
-        :return                 : (24시간저가, 24시간고가, 24시간평균거래금액, 24시간거래량)
+        :return                 : (시가, 고가, 저가, 종가, 거래량)
         """
         resp = None
         try:
             resp = PublicApi.ticker(order_currency, payment_currency)
-            low = resp['data']['min_price']
+            open = resp['data']['opening_price']
             high = resp['data']['max_price']
-            avg = resp['data']['average_price']
+            low = resp['data']['min_price']
+            close = resp['data']['closing_price']
             volume = resp['data']['units_traded']
-            return float(low), float(high), float(avg), float(volume)
+            return float(open), float(high), float(low), float(close), float(volume)
         except Exception:
             return resp
 
@@ -303,4 +304,3 @@ if __name__ == "__main__":
     # print(Bithumb.get_orderbook("BTC"))
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
-    # print(Bithumb.get_btci())
