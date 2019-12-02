@@ -2,21 +2,21 @@ from pybithumb.client import Bithumb
 from .history import *
 
 
-def get_ohlc(currency):
-    return Bithumb.get_ohlc(currency)
+def get_ohlc(order_currency, payment_currency="KRW"):
+    return Bithumb.get_ohlc(order_currency, payment_currency)
 
 
-def get_tickers():
-    return Bithumb.get_tickers()
+def get_tickers(payment_currency="KRW"):
+    return Bithumb.get_tickers(payment_currency)
 
 
-def get_market_detail(currency):
-    return Bithumb.get_market_detail(currency)
+def get_market_detail(order_currency, payment_currency="KRW"):
+    return Bithumb.get_market_detail(order_currency, payment_currency)
 
 
-def get_current_price(currency):
-    return Bithumb.get_current_price(currency)
+def get_current_price(order_currency, payment_currency="KRW"):
+    return Bithumb.get_current_price(order_currency, payment_currency)
 
 
-def get_orderbook(currency, limit=5):
-    return Bithumb.get_orderbook(currency, limit)
+def get_orderbook(order_currency, payment_currency="KRW", limit=5):
+    return Bithumb.get_orderbook(order_currency, payment_currency, limit)
