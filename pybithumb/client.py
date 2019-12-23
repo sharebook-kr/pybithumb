@@ -113,7 +113,7 @@ class Bithumb:
         """
         resp = None
         try:
-            limit = min(limit, 20)
+            limit = min(limit, 30)
             resp = PublicApi.orderbook(order_currency, payment_currency, limit)
             data = resp['data']
             for idx in range(len(data['bids'])) :
@@ -134,6 +134,22 @@ class Bithumb:
             data['date'] = datetime.datetime.fromtimestamp(int(data['date']) / 1e3)
             return data
         except Exception:
+            return None
+
+    @staticmethod
+    def get_transaction_history(order_currency, payment_currency="KRW", limit=20):
+        resp = None
+        try:
+            limit = min(limit, 100)
+            resp = PublicApi.transaction_history(order_currency, payment_currency, limit)
+            data = resp['data']
+            for idx in range(len(data)):
+                data[idx]['units_traded'] = float(data[idx]['units_traded'])
+                data[idx]['price'] = float(data[idx]['price'])
+                data[idx]['total'] = float(data[idx]['total'])
+            return data
+        except Exception as e:
+            print (e)
             return None
 
     def get_trading_fee(self, order_currency, payment_currency="KRW"):

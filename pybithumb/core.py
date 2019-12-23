@@ -15,9 +15,10 @@ class PublicApi:
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def transaction_history(order_currency, payment_currency="KRW"):
-        uri = "/public/transaction_history/{}_{}".format(order_currency,
-                                                    payment_currency)
+    def transaction_history(order_currency, payment_currency="KRW", limit=20):
+        uri = "/public/transaction_history/{}_{}?count={}".format(order_currency,
+                                                    payment_currency,
+                                                    limit)
         return BithumbHttp().get(uri)
 
     @staticmethod
