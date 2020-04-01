@@ -136,6 +136,33 @@ class Bithumb:
         except Exception:
             return None
 
+    @staticmethod
+    def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+        """
+        Candlestick API
+        :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
+        :param payment_currency : KRW
+        :param chart_instervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+        :return                 : (기준 시간, 시가, 고가, 저가, 종가, 거래량)
+        """
+        resp = None
+        try:
+            data = []
+            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_instervals=chart_instervals)
+            if resp.get('status') == '0000':
+                resp = resp.get('data')
+                for idx in range(len(resp)):
+                    time = int(resp[idx][0])
+                    open = float(resp[idx][1])
+                    close = float(resp[idx][2])
+                    high = float(resp[idx][3])
+                    low = float(resp[idx][4])
+                    volume = float(resp[idx][5])
+                    data.append(time, open, high, low, close, volume)
+            return data
+        except Exception:
+            return resp
+
     def get_trading_fee(self, order_currency, payment_currency="KRW"):
         """
         거래 수수료 조회
@@ -297,6 +324,7 @@ class Bithumb:
             return resp['order_id']
         except Exception:
             return resp
+
 
 
 if __name__ == "__main__":
