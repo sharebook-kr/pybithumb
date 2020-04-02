@@ -32,6 +32,12 @@ class PublicApi:
         uri = "/public/btci"
         return BithumbHttp().get(uri)
 
+    @staticmethod
+    def candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+        uri = "/public/candlestick/{}_{}/{}".format(order_currency, payment_currency,
+                                                chart_instervals)
+        return BithumbHttp().get(uri)
+
 
 class PrivateApi:
     def __init__(self, conkey, seckey):
