@@ -20,3 +20,7 @@ def get_current_price(order_currency, payment_currency="KRW"):
 
 def get_orderbook(order_currency, payment_currency="KRW", limit=5):
     return Bithumb.get_orderbook(order_currency, payment_currency, limit)
+
+
+def get_transaction_history(order_currency, payment_currency="KRW", limit=20):
+    return Bithumb.get_transaction_history(order_currency, payment_currency, limit)
