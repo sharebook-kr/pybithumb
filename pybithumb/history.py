@@ -1,10 +1,12 @@
 import json
 import datetime
 import requests
+from pybithumb import util
 from pandas import DataFrame
 from bs4 import BeautifulSoup
 
 
+@util.deprecated('Please use get_candlestick() function instead of get_ohlcv().')
 def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
     try:
         # for backward compatibility
@@ -19,8 +21,7 @@ def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
             "minute3": "03M",
         }
 
-        url = "https://m.bithumb.com/trade/chart/{}_{}".format(order_currency,
-                                                               payment_currency)
+        url = "https://m.bithumb.com/trade/chart/{}_{}".format(order_currency, payment_currency)
         resp = requests.get(url)
         html = resp.text
 

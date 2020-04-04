@@ -1,4 +1,6 @@
 from pybithumb.core import *
+from pandas import DataFrame
+import pandas as pd
 import datetime
 import math
 
@@ -149,7 +151,7 @@ class Bithumb:
                 data[idx]['total'] = float(data[idx]['total'])
             return data
         except Exception as e:
-            print (e)
+            print(e)
             return None
 
     @staticmethod
@@ -159,25 +161,19 @@ class Bithumb:
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
         :param chart_instervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
-        :return                 : (기준 시간, 시가, 고가, 저가, 종가, 거래량)
+        :return                 : DataFrame (시가, 고가, 저가, 종가, 거래량)
+                                   - index : DateTime
         """
-        resp = None
         try:
-            data = []
             resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_instervals=chart_instervals)
             if resp.get('status') == '0000':
                 resp = resp.get('data')
-                for idx in range(len(resp)):
-                    time = int(resp[idx][0])
-                    open = float(resp[idx][1])
-                    close = float(resp[idx][2])
-                    high = float(resp[idx][3])
-                    low = float(resp[idx][4])
-                    volume = float(resp[idx][5])
-                    data.append(time, open, high, low, close, volume)
-            return data
+                df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
+                df = df.set_index('time')
+                df.index = pd.to_datetime(df.index, unit='ms')
+                return df.astype(float)
         except Exception:
-            return resp
+            return None
 
     def get_trading_fee(self, order_currency, payment_currency="KRW"):
         """
@@ -343,7 +339,9 @@ class Bithumb:
 
 
 if __name__ == "__main__":
-    print(Bithumb.get_tickers())
     # print(Bithumb.get_orderbook("BTC"))
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
+    # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
+    df = Bithumb.get_candlestick("BTC")
+    print(df.tail(5))
