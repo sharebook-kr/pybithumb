@@ -19,32 +19,29 @@ def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
             "minute10": "10M",
             "minute5": "05M",
             "minute3": "03M",
+            "minute1": "01M",
         }
 
-        url = "https://m.bithumb.com/trade/chart/{}_{}".format(order_currency, payment_currency)
+        url = "https://m.bithumb.com/trade/chart_app/{}_{}".format(order_currency, payment_currency)
         resp = requests.get(url)
         html = resp.text
+        csrf_xcoin_name = resp.cookies['csrf_xcoin_name']
 
         # parsing coin type
         string = html.split("COIN = ")[1].split(";")[0]
         coin = json.loads(string)
         tk2ct = {v['symbol_name']: k for k, v in coin['C0100'].items()}
 
-        # parsing xcoin name
-        selector = "#barcodeForm > input[name=csrf_xcoin_name]"
-        soup = BeautifulSoup(html, 'html5lib')
-        xcoin_name = soup.select(selector)[0]['value']
-
         url = "https://m.bithumb.com/trade_history/chart_data"
         headers = {
-            "cookie": 'csrf_xcoin_name={}'.format(xcoin_name),
+            "cookie": f"csrf_xcoin_name={csrf_xcoin_name}",
             "x-requested-with": "XMLHttpRequest"
         }
         data = {
             "coinType": tk2ct[order_currency],
             "crncCd": "C0100",
             "tickType": int2type[interval],
-            "csrf_xcoin_name": xcoin_name
+            "csrf_xcoin_name": csrf_xcoin_name
         }
 
         resp = requests.post(url, data=data, headers=headers).json()
