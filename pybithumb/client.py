@@ -48,7 +48,7 @@ class Bithumb:
         resp = None
         try:
             resp = PublicApi.ticker(order_currency, payment_currency)['data']
-            if order_currency is "ALL":
+            if order_currency == "ALL":
                 del resp['date']
                 data = {}
                 for key in resp:
@@ -97,7 +97,7 @@ class Bithumb:
         resp = None
         try:
             resp = PublicApi.ticker(order_currency, payment_currency)
-            if order_currency is not "ALL":
+            if order_currency != "ALL":
                 return float(resp['data']['closing_price'])
             else:
                 del resp["data"]['date']
@@ -172,6 +172,7 @@ class Bithumb:
                 df = df.set_index('time')
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
+                df.index = df.index.tz_localize(None)
                 return df.astype(float)
         except Exception:
             return None
