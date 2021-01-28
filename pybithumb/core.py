@@ -39,6 +39,7 @@ class PublicApi:
         return BithumbHttp().get(uri)
 
 
+
 class PrivateApi:
     def __init__(self, conkey, seckey):
         self.http = BithumbHttp(conkey, seckey)
@@ -136,3 +137,7 @@ class BithumbHttp(HttpMethod):
             'Api-Nonce': nonce
         })
         return super().post(path, **kwargs)
+
+
+if __name__ == "__main__":
+    print(PublicApi.ticker("BTC"))

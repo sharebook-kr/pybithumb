@@ -1,6 +1,6 @@
 from pybithumb.client import Bithumb
 from .history import *
-
+from .websocket import WebSocketManager
 
 def get_ohlc(order_currency, payment_currency="KRW"):
     return Bithumb.get_ohlc(order_currency, payment_currency)

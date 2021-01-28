@@ -54,7 +54,7 @@ get_orderbook 함수는 호가 정보를 가져온다.
 ```python
 for coin in  Bithumb.get_tickers():
     print(coin, Bithumb.get_orderbook(coin))
-```  
+```
 
 #### 시간별 가격정보
 시가/종가/고가/저가/거래량 정보를 DataFrame으로 반환한다.
@@ -65,7 +65,7 @@ print(df.tail(5))
 
 ```python
                        open      close       high        low        volume
-time                                                                         
+time
 2020-03-30 15:00:00  7740000.0  7848000.0  8019000.0  7683000.0   7913.696718
 2020-03-31 15:00:00  7847000.0  7630000.0  7893000.0  7534000.0   5163.670206
 2020-04-01 15:00:00  7633000.0  8194000.0  8216000.0  7569000.0   9123.583777
@@ -81,11 +81,30 @@ df = Bithumb.get_candlestick("BTC", chart_intervals="30m")
 print(df.tail(5))
 ```
 
+### 웹소켓
+WebSocket을 이용해서 `현재가`, `호가`, `체결`에 대한 정보를 수신한다.
+- 첫 번째 파라미터로 수신정보를 입력하며 `ticker`, `orderbook`, `transaction`을 사용할 수 있다.
+- 두 번째 파라미터는 구독할 필터를 설정하며 암호화폐의 티커를 입력한다. 현재 버전에서는 원화 시장만을 지원한다.
+
+```python
+if __name__ == "__main__":
+    wm = WebSocketManager("ticker", ["BTC_KRW"])
+    for i in range(10):
+        data = wm.get()
+        print(data)
+    wm.terminate()
+```
+주의할 사항은 multiprocessing을 위해 `__name__` guard를 반드시 써줘야한다는 것이다.
+
+PyQt5와 함께 웹소켓을 사용하는 예제는 다음과 같다.
+- 버튼을 클릭하면 웹소켓에서 가격정보를 가져와서 화면에 출력한다.
+- https://gist.github.com/mr-yoo/a3d1f8a4152f94cf61e4bc566659cd20
+
 
 ## Private API
 #### 로그인
-connectkey와 secretkey를 사용해서 로그인한다. 
-두 key를 생성하는 방법은 [링크](http://sharebook.kr/x/ZQov)를 참조한다. 
+connectkey와 secretkey를 사용해서 로그인한다.
+두 key를 생성하는 방법은 [링크](http://sharebook.kr/x/ZQov)를 참조한다.
 ```python
 bithumb = Bithumb("conkey", "seckey")
 ```
@@ -102,7 +121,7 @@ for coin in Bithumb.get_tickers():
 ```
 
 #### 매수/매도 주문
-비트코인을 1100만원에 1개 매수/매도한다. 
+비트코인을 1100만원에 1개 매수/매도한다.
 ```python
 desc = bithumb.buy_limit_order("BTC", 11000000, 1)
 desc = bithumb.sell_limit_order("BTC", 11000000, 1)
