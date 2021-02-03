@@ -6,7 +6,7 @@ from pandas import DataFrame
 from bs4 import BeautifulSoup
 
 
-@util.deprecated('Please use get_candlestick() function instead of get_ohlcv().')
+# @util.deprecated('Please use get_candlestick() function instead of get_ohlcv().')
 def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
     try:
         # for backward compatibility
