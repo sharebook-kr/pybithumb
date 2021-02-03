@@ -345,5 +345,5 @@ if __name__ == "__main__":
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
     # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
-    df = Bithumb.get_candlestick("BTC")
-    print(df.tail(5))
+    df = Bithumb.get_tickers("BTC")
+    print(df)

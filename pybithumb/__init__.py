@@ -1,5 +1,4 @@
 from pybithumb.client import Bithumb
-from .history import *
 from .websocket import WebSocketManager
 
 def get_ohlc(order_currency, payment_currency="KRW"):
@@ -26,4 +25,21 @@ def get_transaction_history(order_currency, payment_currency="KRW", limit=20):
     return Bithumb.get_transaction_history(order_currency, payment_currency, limit)
 
 def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+    return Bithumb.get_candlestick(order_currency, payment_currency, chart_instervals)
+
+# @util.deprecated('Please use get_candlestick() function instead of get_ohlcv().')
+def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):
+    # for backward compatibility
+    chart_instervals = {
+        "day": "24h",
+        "hour12": "12h",
+        "hour6": "6h",
+        "hour": "1h",
+        "minute30": "30m",
+        "minute10": "10m",
+        "minute5": "5m",
+        "minute3": "3m",
+        "minute1": "1m",
+    }[interval]
+
     return Bithumb.get_candlestick(order_currency, payment_currency, chart_instervals)
