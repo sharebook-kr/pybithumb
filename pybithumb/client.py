@@ -170,6 +170,7 @@ class Bithumb:
                 resp = resp.get('data')
                 df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
                 df = df.set_index('time')
+                df = df[['open', 'high', 'low', 'close', 'volume']]
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
