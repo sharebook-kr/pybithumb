@@ -338,7 +338,39 @@ class Bithumb:
             return resp['order_id']
         except Exception:
             return resp
-
+    
+    def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str):
+        """
+        :unit                   : 출금하고자 하는 코인 수량
+        :address                : 코인 별 출금 주소
+        :destination            : XRP 출금 시 Destination Tag, STEEM 출금 시 입금 메모, XMR 출금 시 Payment ID
+        :currency               : 가상자산 영문 코드. 기본값:BTC
+        """
+        resp = None
+        try:
+            unit = Bithumb._convert_unit(withdraw_unit)
+            resp = self.api.withdraw_coin(units=unit,
+                                        address=target_address,
+                                        destination=destination_tag_or_memo,
+                                        currency=withdraw_currency)
+            return resp['order_id']
+        except Exception:
+            return resp
+    
+    def withdraw_cash(self, target_bank:str, target_account:str, target_amount:int):
+        """
+        :bank                   : [은행코드_은행명] ex: 011_농협은행
+        :account                : 출금 계좌번호
+        :price                  : 출금 KRW 금액	
+        """
+        resp = None
+        try:
+            resp = self.api.withdraw_coin(bank=target_bank,
+                                        account=target_account,
+                                        price=target_amount)
+            return resp['order_id']
+        except Exception:
+            return resp
 
 if __name__ == "__main__":
     # print(Bithumb.get_orderbook("BTC"))
