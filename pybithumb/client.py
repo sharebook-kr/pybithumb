@@ -155,7 +155,7 @@ class Bithumb:
             return None
 
     @staticmethod
-    def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+    def get_candlestick(order_currency, payment_currency="KRW", chart_intervals="24h"):
         """
         Candlestick API
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
@@ -165,7 +165,7 @@ class Bithumb:
                                    - index : DateTime
         """
         try:
-            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_instervals=chart_instervals)
+            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_intervals=chart_intervals)
             if resp.get('status') == '0000':
                 resp = resp.get('data')
                 df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])

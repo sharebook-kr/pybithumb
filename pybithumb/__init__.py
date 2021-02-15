@@ -24,8 +24,8 @@ def get_orderbook(order_currency, payment_currency="KRW", limit=5):
 def get_transaction_history(order_currency, payment_currency="KRW", limit=20):
     return Bithumb.get_transaction_history(order_currency, payment_currency, limit)
 
-def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
-    return Bithumb.get_candlestick(order_currency, payment_currency, chart_instervals)
+def get_candlestick(order_currency, payment_currency="KRW", chart_intervals="24h"):
+    return Bithumb.get_candlestick(order_currency, payment_currency, chart_intervals)
 
 # @util.deprecated('Please use get_candlestick() function instead of get_ohlcv().')
 def get_ohlcv(order_currency="BTC", payment_currency="KRW", interval="day"):

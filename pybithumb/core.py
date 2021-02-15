@@ -33,9 +33,9 @@ class PublicApi:
         return BithumbHttp().get(uri)
 
     @staticmethod
-    def candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+    def candlestick(order_currency, payment_currency="KRW", chart_intervals="24h"):
         uri = "/public/candlestick/{}_{}/{}".format(order_currency, payment_currency,
-                                                chart_instervals)
+                                                chart_intervals)
         return BithumbHttp().get(uri)
 
 
