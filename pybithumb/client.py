@@ -223,7 +223,7 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            resp = self.api.place(type="bid", price=price, units=unit,
+            resp = self.api.place(type="bid", price=f"{price:.8f}", units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
             return "bid", order_currency, resp['order_id'], payment_currency
@@ -243,7 +243,7 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            resp = self.api.place(type="ask", price=price, units=unit,
+            resp = self.api.place(type="ask", price=f"{price:.8f}", units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
             return "ask", order_currency, resp['order_id'], payment_currency
@@ -339,7 +339,7 @@ class Bithumb:
             return resp['order_id']
         except Exception:
             return resp
-    
+
     def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str):
         """
         :unit                   : 출금하고자 하는 코인 수량
@@ -357,12 +357,12 @@ class Bithumb:
             return resp['order_id']
         except Exception:
             return resp
-    
+
     def withdraw_cash(self, target_bank:str, target_account:str, target_amount:int):
         """
         :bank                   : [은행코드_은행명] ex: 011_농협은행
         :account                : 출금 계좌번호
-        :price                  : 출금 KRW 금액	
+        :price                  : 출금 KRW 금액
         """
         resp = None
         try:
