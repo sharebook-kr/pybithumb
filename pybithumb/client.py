@@ -318,7 +318,7 @@ class Bithumb:
             resp = self.api.market_buy(order_currency=order_currency,
                                        payment_currency=payment_currency,
                                        units=unit)
-            return resp['order_id']
+            return "bid", order_currency, resp['order_id'], payment_currency
         except Exception:
             return resp
 
@@ -336,7 +336,7 @@ class Bithumb:
             resp = self.api.market_sell(order_currency=order_currency,
                                         payment_currency=payment_currency,
                                         units=unit)
-            return resp['order_id']
+            return "ask", order_currency, resp['order_id'], payment_currency
         except Exception:
             return resp
 
