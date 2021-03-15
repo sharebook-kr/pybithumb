@@ -223,7 +223,8 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            resp = self.api.place(type="bid", price=f"{price:.8f}", units=unit,
+            price = price if payment_currency == "KRW" else f"{price:.8f}"
+            resp = self.api.place(type="bid", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
             return "bid", order_currency, resp['order_id'], payment_currency
@@ -243,7 +244,8 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            resp = self.api.place(type="ask", price=f"{price:.8f}", units=unit,
+            price = price if payment_currency == "KRW" else f"{price:.8f}"
+            resp = self.api.place(type="ask", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
             return "ask", order_currency, resp['order_id'], payment_currency
