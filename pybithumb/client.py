@@ -170,10 +170,12 @@ class Bithumb:
                 resp = resp.get('data')
                 df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
                 df = df.set_index('time')
+                df = df[~df.index.duplicated()]
                 df = df[['open', 'high', 'low', 'close', 'volume']]
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
+
                 return df.astype(float)
         except Exception:
             return None
@@ -262,7 +264,7 @@ class Bithumb:
         try:
             resp = self.api.orders(type=order_desc[0],
                                    order_currency=order_desc[1],
-                                   order_id=order_desc[2],
+                                   order_id="",
                                    payment_currency=order_desc[3])
             if resp['status'] == '5600':
                 return None
@@ -380,5 +382,6 @@ if __name__ == "__main__":
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
     # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
-    df = Bithumb.get_tickers("BTC")
-    print(df)
+
+    df = Bithumb.get_candlestick("BTC", chart_intervals="12h")
+    print(df[df.duplicated()])
