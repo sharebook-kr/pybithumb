@@ -264,7 +264,7 @@ class Bithumb:
         try:
             resp = self.api.orders(type=order_desc[0],
                                    order_currency=order_desc[1],
-                                   order_id="",
+                                   order_id=order_desc[2],
                                    payment_currency=order_desc[3])
             if resp['status'] == '5600':
                 return None
