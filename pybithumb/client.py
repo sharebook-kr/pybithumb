@@ -155,21 +155,23 @@ class Bithumb:
             return None
 
     @staticmethod
-    def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
+    def get_candlestick(order_currency, payment_currency="KRW", chart_intervals="24h"):
         """
         Candlestick API
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
-        :param chart_instervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+        :param chart_intervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
         :return                 : DataFrame (시가, 고가, 저가, 종가, 거래량)
                                    - index : DateTime
         """
         try:
-            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_instervals=chart_instervals)
+            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_intervals=chart_intervals)
             if resp.get('status') == '0000':
                 resp = resp.get('data')
                 df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
                 df = df.set_index('time')
+                df = df[~df.index.duplicated()]
+                df = df[['open', 'high', 'low', 'close', 'volume']]
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
@@ -222,6 +224,7 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
+            price = price if payment_currency == "KRW" else f"{price:.8f}"
             resp = self.api.place(type="bid", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
@@ -317,7 +320,7 @@ class Bithumb:
             resp = self.api.market_buy(order_currency=order_currency,
                                        payment_currency=payment_currency,
                                        units=unit)
-            return resp['order_id']
+            return "bid", order_currency, resp['order_id'], payment_currency
         except Exception:
             return resp
 
@@ -335,7 +338,7 @@ class Bithumb:
             resp = self.api.market_sell(order_currency=order_currency,
                                         payment_currency=payment_currency,
                                         units=unit)
-            return resp['order_id']
+            return "ask", order_currency, resp['order_id'], payment_currency
         except Exception:
             return resp
     
@@ -371,7 +374,7 @@ class Bithumb:
         """
         :bank                   : [은행코드_은행명] ex: 011_농협은행
         :account                : 출금 계좌번호
-        :price                  : 출금 KRW 금액	
+        :price                  : 출금 KRW 금액
         """
         resp = None
         try:
@@ -387,5 +390,6 @@ if __name__ == "__main__":
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
     # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
-    df = Bithumb.get_tickers("BTC")
-    print(df)
+    
+    df = Bithumb.get_candlestick("BTC", chart_intervals="12h")
+    print(df[df.duplicated()])
