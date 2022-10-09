@@ -175,6 +175,7 @@ class Bithumb:
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
+                
                 return df.astype(float)
         except Exception:
             return None
@@ -245,6 +246,7 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
+            price = price if payment_currency == "KRW" else f"{price:.8f}"
             resp = self.api.place(type="ask", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
@@ -375,6 +377,5 @@ if __name__ == "__main__":
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
     # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
-    
     df = Bithumb.get_candlestick("BTC", chart_intervals="12h")
     print(df[df.duplicated()])
