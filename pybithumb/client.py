@@ -155,7 +155,7 @@ class Bithumb:
             return None
 
     @staticmethod
-    def get_candlestick(order_currency, payment_currency="KRW", chart_intervals="24h"):
+    def get_candlestick(order_currency, payment_currency="KRW", chart_instervals="24h"):
         """
         Candlestick API
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
@@ -165,17 +165,14 @@ class Bithumb:
                                    - index : DateTime
         """
         try:
-            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_intervals=chart_intervals)
+            resp = PublicApi.candlestick(order_currency=order_currency, payment_currency=payment_currency, chart_instervals=chart_instervals)
             if resp.get('status') == '0000':
                 resp = resp.get('data')
                 df = DataFrame(resp, columns=['time', 'open', 'close', 'high', 'low', 'volume'])
                 df = df.set_index('time')
-                df = df[~df.index.duplicated()]
-                df = df[['open', 'high', 'low', 'close', 'volume']]
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
-
                 return df.astype(float)
         except Exception:
             return None
@@ -225,7 +222,6 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            price = price if payment_currency == "KRW" else f"{price:.8f}"
             resp = self.api.place(type="bid", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
@@ -246,7 +242,6 @@ class Bithumb:
         resp = None
         try:
             unit = Bithumb._convert_unit(unit)
-            price = price if payment_currency == "KRW" else f"{price:.8f}"
             resp = self.api.place(type="ask", price=price, units=unit,
                                   order_currency=order_currency,
                                   payment_currency=payment_currency)
@@ -322,7 +317,7 @@ class Bithumb:
             resp = self.api.market_buy(order_currency=order_currency,
                                        payment_currency=payment_currency,
                                        units=unit)
-            return "bid", order_currency, resp['order_id'], payment_currency
+            return resp['order_id']
         except Exception:
             return resp
 
@@ -340,33 +335,43 @@ class Bithumb:
             resp = self.api.market_sell(order_currency=order_currency,
                                         payment_currency=payment_currency,
                                         units=unit)
-            return "ask", order_currency, resp['order_id'], payment_currency
+            return resp['order_id']
         except Exception:
             return resp
-
-    def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str):
+    
+    def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str, exchange_name:str, cust_type_cd:str, ko_name:str, en_name:str):
         """
         :unit                   : 출금하고자 하는 코인 수량
         :address                : 코인 별 출금 주소
         :destination            : XRP 출금 시 Destination Tag, STEEM 출금 시 입금 메모, XMR 출금 시 Payment ID
         :currency               : 가상자산 영문 코드. 기본값:BTC
+        :exchange_name	        : 출금 거래소명	
+        :cust_type_cd           : 개인/법인 여부(개인 01 ,법인 02)	
+        :ko_name	            : 개인 수취 정보_국문 성명	
+        :en_name	            : 개인 수취 정보_영문 성명	
         """
         resp = None
+        
         try:
             unit = Bithumb._convert_unit(withdraw_unit)
             resp = self.api.withdraw_coin(units=unit,
                                         address=target_address,
                                         destination=destination_tag_or_memo,
-                                        currency=withdraw_currency)
+                                        currency=withdraw_currency,
+                                        exchange_name=exchange_name,
+                                        cust_type_cd=cust_type_cd, 
+                                        ko_name=ko_name, 
+                                        en_name=en_name,
+                                        )
             return resp['order_id']
         except Exception:
             return resp
-
+    
     def withdraw_cash(self, target_bank:str, target_account:str, target_amount:int):
         """
         :bank                   : [은행코드_은행명] ex: 011_농협은행
         :account                : 출금 계좌번호
-        :price                  : 출금 KRW 금액
+        :price                  : 출금 KRW 금액	
         """
         resp = None
         try:
@@ -382,6 +387,5 @@ if __name__ == "__main__":
     # print(Bithumb.get_current_price("BTC"))
     # print(Bithumb.get_current_price("ALL"))
     # 1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h
-
-    df = Bithumb.get_candlestick("BTC", chart_intervals="12h")
-    print(df[df.duplicated()])
+    df = Bithumb.get_tickers("BTC")
+    print(df)
