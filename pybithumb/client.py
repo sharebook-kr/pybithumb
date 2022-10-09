@@ -354,6 +354,7 @@ class Bithumb:
         :cust_type_cd           : 개인/법인 여부(개인 01 ,법인 02)	
         :ko_name	            : 개인 수취 정보_국문 성명	
         :en_name	            : 개인 수취 정보_영문 성명	
+        :return                 : 성공: True / 실패: False
         """
         resp = None
         
