@@ -366,22 +366,7 @@ class Bithumb:
                                         ko_name=ko_name, 
                                         en_name=en_name,
                                         )
-            return resp['order_id']
-        except Exception:
-            return resp
-    
-    def withdraw_cash(self, target_bank:str, target_account:str, target_amount:int):
-        """
-        :bank                   : [은행코드_은행명] ex: 011_농협은행
-        :account                : 출금 계좌번호
-        :price                  : 출금 KRW 금액
-        """
-        resp = None
-        try:
-            resp = self.api.withdraw_coin(bank=target_bank,
-                                        account=target_account,
-                                        price=target_amount)
-            return resp['order_id']
+            return resp['status'] == '0000'
         except Exception:
             return resp
 

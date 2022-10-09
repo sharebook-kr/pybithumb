@@ -71,9 +71,6 @@ class PrivateApi:
     def withdraw_coin(self, **kwargs):
         return self.http.post('/trade/btc_withdrawal', **kwargs)
 
-    def withdraw_cash(self, **kwargs):
-        return self.http.post('/trade/krw_withdrawal', **kwargs)
-
 
 class HttpMethod:
     def __init__(self):
