@@ -160,7 +160,7 @@ class Bithumb:
         Candlestick API
         :param order_currency   : BTC/ETH/DASH/LTC/ETC/XRP/BCH/XMR/ZEC/QTUM/BTG/EOS/ICX/VEN/TRX/ELF/MITH/MCO/OMG/KNC
         :param payment_currency : KRW
-        :param chart_instervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
+        :param chart_intervals : 24h {1m, 3m, 5m, 10m, 30m, 1h, 6h, 12h, 24h 사용 가능}
         :return                 : DataFrame (시가, 고가, 저가, 종가, 거래량)
                                    - index : DateTime
         """
@@ -343,37 +343,33 @@ class Bithumb:
             return "ask", order_currency, resp['order_id'], payment_currency
         except Exception:
             return resp
-
-    def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str):
+    
+    def withdraw_coin(self, withdraw_unit:float, target_address:str, destination_tag_or_memo, withdraw_currency:str, exchange_name:str, cust_type_cd:str, ko_name:str, en_name:str):
         """
         :unit                   : 출금하고자 하는 코인 수량
         :address                : 코인 별 출금 주소
         :destination            : XRP 출금 시 Destination Tag, STEEM 출금 시 입금 메모, XMR 출금 시 Payment ID
         :currency               : 가상자산 영문 코드. 기본값:BTC
+        :exchange_name	        : 출금 거래소명	
+        :cust_type_cd           : 개인/법인 여부(개인 01 ,법인 02)	
+        :ko_name	            : 개인 수취 정보_국문 성명	
+        :en_name	            : 개인 수취 정보_영문 성명	
+        :return                 : 성공: True / 실패: False
         """
         resp = None
+        
         try:
             unit = Bithumb._convert_unit(withdraw_unit)
             resp = self.api.withdraw_coin(units=unit,
                                         address=target_address,
                                         destination=destination_tag_or_memo,
-                                        currency=withdraw_currency)
-            return resp['order_id']
-        except Exception:
-            return resp
-
-    def withdraw_cash(self, target_bank:str, target_account:str, target_amount:int):
-        """
-        :bank                   : [은행코드_은행명] ex: 011_농협은행
-        :account                : 출금 계좌번호
-        :price                  : 출금 KRW 금액
-        """
-        resp = None
-        try:
-            resp = self.api.withdraw_coin(bank=target_bank,
-                                        account=target_account,
-                                        price=target_amount)
-            return resp['order_id']
+                                        currency=withdraw_currency,
+                                        exchange_name=exchange_name,
+                                        cust_type_cd=cust_type_cd, 
+                                        ko_name=ko_name, 
+                                        en_name=en_name,
+                                        )
+            return resp['status'] == '0000'
         except Exception:
             return resp
 
