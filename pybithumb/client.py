@@ -175,6 +175,7 @@ class Bithumb:
                 df.index = pd.to_datetime(df.index, unit='ms', utc=True)
                 df.index = df.index.tz_convert('Asia/Seoul')
                 df.index = df.index.tz_localize(None)
+
                 return df.astype(float)
         except Exception:
             return None
